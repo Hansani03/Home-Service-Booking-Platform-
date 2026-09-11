@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -100,6 +102,35 @@ public class ProviderService {
         return providerRepository.existsById(id);
     }
 
+    @Transactional
+    public ProviderResponse updateProfile(Integer id, Map<String, Object> updates) {
+        Provider provider = providerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Provider not found with id: " + id));
+        if (updates.containsKey("firstName")) provider.setFirstName(String.valueOf(updates.get("firstName")));
+        if (updates.containsKey("lastName")) provider.setLastName(String.valueOf(updates.get("lastName")));
+        if (updates.containsKey("email")) provider.setEmail(String.valueOf(updates.get("email")));
+        if (updates.containsKey("phone")) provider.setPhone(String.valueOf(updates.get("phone")));
+        if (updates.containsKey("location")) provider.setLocation(String.valueOf(updates.get("location")));
+        if (updates.containsKey("experienceYears")) provider.setExperienceYears(Integer.valueOf(String.valueOf(updates.get("experienceYears"))));
+        if (updates.containsKey("hourlyRate")) provider.setHourlyRate(new BigDecimal(String.valueOf(updates.get("hourlyRate"))));
+        if (updates.containsKey("available")) provider.setAvailability(Boolean.parseBoolean(String.valueOf(updates.get("available"))) ? Availability.Available : Availability.Offline);
+        return toResponse(providerRepository.save(provider));
+    }
+
+    @Transactional
+    public ProviderResponse addRating(Integer id, Map<String, Object> body) {
+        Provider provider = providerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Provider not found with id: " + id));
+        BigDecimal rating = new BigDecimal(String.valueOf(body.get("rating")));
+        if (rating.compareTo(BigDecimal.ONE) < 0 || rating.compareTo(BigDecimal.valueOf(5)) > 0) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5");
+        }
+        provider.setRating(provider.getRating().signum() == 0
+                ? rating
+                : provider.getRating().add(rating).divide(BigDecimal.valueOf(2), 1, java.math.RoundingMode.HALF_UP));
+        return toResponse(providerRepository.save(provider));
+    }
+
     private ProviderResponse toResponse(Provider provider) {
         String categoryName = categoryRepository.findById(provider.getCategoryId())
                 .map(ServiceCategory::getCategoryName)
@@ -117,6 +148,7 @@ public class ProviderService {
                 .experienceYears(provider.getExperienceYears())
                 .availability(provider.getAvailability())
                 .rating(provider.getRating())
+                .hourlyRate(provider.getHourlyRate())
                 .build();
     }
 }

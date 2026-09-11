@@ -73,4 +73,18 @@ public class ProviderController {
             @Valid @RequestBody AvailabilityUpdateRequest request) {
         return ResponseEntity.ok(providerService.updateAvailability(id, request));
     }
+
+    @PutMapping("/providers/{id}")
+    public ResponseEntity<ProviderResponse> updateProfile(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Object> updates) {
+        return ResponseEntity.ok(providerService.updateProfile(id, updates));
+    }
+
+    @PostMapping("/providers/{id}/rating")
+    public ResponseEntity<ProviderResponse> addRating(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Object> body) {
+        return ResponseEntity.ok(providerService.addRating(id, body));
+    }
 }

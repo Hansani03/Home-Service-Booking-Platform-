@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `providers` (
   `experience_years` int(11) DEFAULT 0,
   `availability` enum('Available','Busy','Offline') DEFAULT 'Available',
   `rating` decimal(2,1) DEFAULT 0.0,
+  `hourly_rate` decimal(10,2) DEFAULT 1000.00,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`provider_id`),
   UNIQUE KEY `email` (`email`),

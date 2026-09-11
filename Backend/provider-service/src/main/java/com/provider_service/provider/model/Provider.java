@@ -54,6 +54,10 @@ public class Provider {
     @Builder.Default
     private BigDecimal rating = BigDecimal.ZERO;
 
+    @Column(name = "hourly_rate", precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal hourlyRate = BigDecimal.valueOf(1000);
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
