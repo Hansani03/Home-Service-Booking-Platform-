@@ -1,5 +1,15 @@
 # Home Service Booking Platform
 
+## Docker quick start
+
+With Docker Desktop running, open a terminal in this folder and run:
+
+```bash
+docker compose up --build
+```
+
+Then open `http://localhost:5173`. See [DOCKER-GUIDE.md](DOCKER-GUIDE.md) for all commands and troubleshooting.
+
 The React frontend is connected to three Spring Boot microservices:
 
 - Booking/customer/payment API: `http://localhost:8081/api`
