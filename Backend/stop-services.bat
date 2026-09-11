@@ -6,7 +6,7 @@ echo.
 
 for %%P in (8081 8082 8083) do (
     for /f "tokens=5" %%A in ('netstat -ano ^| findstr ":%%P " ^| findstr LISTENING') do (
-        echo Stopping process on port %%P (PID %%A)...
+        echo Stopping process on port %%P ^(PID %%A^)...
         taskkill /PID %%A /F >nul 2>&1
     )
 )

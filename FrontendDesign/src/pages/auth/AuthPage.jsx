@@ -82,7 +82,7 @@ export default function AuthPage() {
           </Link>
         </div>
 
-        <div className="bg-white rounded-4 shadow-lg p-4 p-md-5">
+        <div className="bg-white text-dark rounded-4 shadow-lg p-4 p-md-5">
           <ul className="nav nav-pills nav-fill mb-4" style={{ background: 'var(--hf-green-100)', borderRadius: 10, padding: 4 }}>
             <li className="nav-item">
               <button
@@ -134,11 +134,11 @@ export default function AuthPage() {
                 <div className="row g-2 mb-2">
                   <div className="col-6">
                     <label className="form-label small">First Name</label>
-                    <input required className="form-control" value={form.firstName} onChange={(e) => update('firstName', e.target.value)} />
+                    <input required className="form-control" placeholder="Enter first name" autoComplete="given-name" value={form.firstName} onChange={(e) => update('firstName', e.target.value)} />
                   </div>
                   <div className="col-6">
                     <label className="form-label small">Last Name</label>
-                    <input required className="form-control" value={form.lastName} onChange={(e) => update('lastName', e.target.value)} />
+                    <input required className="form-control" placeholder="Enter last name" autoComplete="family-name" value={form.lastName} onChange={(e) => update('lastName', e.target.value)} />
                   </div>
                 </div>
                 {role === 'Provider' && (
@@ -159,28 +159,28 @@ export default function AuthPage() {
 
             <div className="mb-2">
               <label className="form-label small">Email</label>
-              <input required type="email" className="form-control" value={form.email} onChange={(e) => update('email', e.target.value)} />
+              <input required type="email" className="form-control" placeholder="you@example.com" autoComplete="email" value={form.email} onChange={(e) => update('email', e.target.value)} />
             </div>
             <div className="mb-2">
               <label className="form-label small">Password</label>
-              <input required type="password" className="form-control" value={form.password} onChange={(e) => update('password', e.target.value)} minLength={6} />
+              <input required type="password" className="form-control" placeholder="Minimum 6 characters" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={form.password} onChange={(e) => update('password', e.target.value)} minLength={6} />
             </div>
 
             {mode === 'signup' && (
               <>
                 <div className="mb-2">
                   <label className="form-label small">Phone</label>
-                  <input required className="form-control" value={form.phone} onChange={(e) => update('phone', e.target.value)} />
+                  <input required type="tel" className="form-control" placeholder="e.g. 0771234567" autoComplete="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} />
                 </div>
                 {role === 'Customer' ? (
                   <div className="mb-3">
                     <label className="form-label small">Address</label>
-                    <input required className="form-control" value={form.address} onChange={(e) => update('address', e.target.value)} />
+                    <input required className="form-control" placeholder="Enter service address" autoComplete="street-address" value={form.address} onChange={(e) => update('address', e.target.value)} />
                   </div>
                 ) : (
                   <div className="mb-3">
                     <label className="form-label small">City</label>
-                    <input required className="form-control" value={form.city} onChange={(e) => update('city', e.target.value)} />
+                    <input required className="form-control" placeholder="e.g. Colombo" autoComplete="address-level2" value={form.city} onChange={(e) => update('city', e.target.value)} />
                   </div>
                 )}
               </>

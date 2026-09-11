@@ -63,6 +63,13 @@ public class NotificationService {
         return toResponse(notificationRepository.save(notification));
     }
 
+    @Transactional
+    public List<NotificationResponse> markAllAsRead(Integer userId, UserType userType) {
+        List<Notification> notifications = notificationRepository.findByUserIdAndUserTypeOrderByCreatedAtDesc(userId, userType);
+        notifications.forEach(notification -> notification.setStatus(NotificationStatus.Read));
+        return notificationRepository.saveAll(notifications).stream().map(this::toResponse).toList();
+    }
+
     private NotificationResponse toResponse(Notification notification) {
         return NotificationResponse.builder()
                 .notificationId(notification.getNotificationId())

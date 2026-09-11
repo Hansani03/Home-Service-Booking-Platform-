@@ -27,6 +27,7 @@ export function AuthProvider({ children }) {
     setSession((prev) => {
       if (!prev) return prev;
       const next = { ...prev, user: { ...prev.user, ...updatedUser } };
+      authService.updateSession(next);
       return next;
     });
   }, []);

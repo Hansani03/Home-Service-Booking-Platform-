@@ -52,4 +52,11 @@ public class NotificationController {
     public ResponseEntity<NotificationResponse> markAsRead(@PathVariable Integer id) {
         return ResponseEntity.ok(notificationService.markAsRead(id));
     }
+
+    @PutMapping("/user/{userId}/read-all")
+    public ResponseEntity<List<NotificationResponse>> markAllAsRead(
+            @PathVariable Integer userId,
+            @RequestParam UserType userType) {
+        return ResponseEntity.ok(notificationService.markAllAsRead(userId, userType));
+    }
 }

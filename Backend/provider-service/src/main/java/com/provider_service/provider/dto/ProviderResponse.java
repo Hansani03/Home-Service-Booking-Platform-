@@ -21,4 +21,5 @@ public class ProviderResponse {
     private Integer experienceYears;
     private Availability availability;
     private BigDecimal rating;
+    private BigDecimal hourlyRate;
 }
