@@ -1,0 +1,87 @@
+name: home-service-booking-platform
+
+services:
+  database:
+    image: mariadb:11.4
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD:-homeservice}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./database/homeservice_booking_db.sql:/docker-entrypoint-initdb.d/01-booking.sql:ro
+      - ./database/homeservice_provider_db.sql:/docker-entrypoint-initdb.d/02-provider.sql:ro
+      - ./database/homeservice_notification_db.sql:/docker-entrypoint-initdb.d/03-notification.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
+  provider-service:
+    build:
+      context: ./Backend
+      dockerfile: provider-service/Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/homeservice_provider_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-homeservice}
+    ports:
+      - "8082:8082"
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./Backend
+      dockerfile: notification-service/Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/homeservice_notification_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-homeservice}
+    ports:
+      - "8083:8083"
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  booking-service:
+    build:
+      context: ./Backend
+      dockerfile: booking-service/Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/homeservice_booking_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-homeservice}
+      PROVIDER_SERVICE_URL: http://provider-service:8082
+      NOTIFICATION_SERVICE_URL: http://notification-service:8083
+    ports:
+      - "8081:8081"
+    depends_on:
+      database:
+        condition: service_healthy
+      provider-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./FrontendDesign
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - booking-service
+      - provider-service
+      - notification-service
+    restart: unless-stopped
+
+volumes:
+  mariadb-data:
