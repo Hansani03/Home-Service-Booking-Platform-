@@ -1,5 +1,11 @@
 # Home Service Booking Platform
 
+## CI/CD pipeline
+
+The repository includes a Windows-compatible Jenkins pipeline with Maven tests, a React production build, SonarQube analysis and Quality Gate reporting, Docker Compose image builds, integration smoke tests, and optional Docker Hub publishing.
+
+See [JENKINS-SETUP-GUIDE.md](JENKINS-SETUP-GUIDE.md) for the complete setup.
+
 ## Docker quick start
 
 With Docker Desktop running, open a terminal in this folder and run:
