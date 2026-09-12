@@ -43,6 +43,7 @@ pipeline {
             steps {
                 bat 'mvn -B -ntp -f Backend/pom.xml clean verify'
             }
+
             post {
                 always {
                     junit(
@@ -97,14 +98,35 @@ pipeline {
                         usernameVariable: 'DOCKERHUB_USERNAME',
                         passwordVariable: 'DOCKERHUB_PASSWORD'
                     )
-                ]) {
+                               ]) {
+                    bat '''
+                        @echo off
+
+                        docker logout >nul 2>&1
+
+                        echo %DOCKERHUB_PASSWORD%| docker login --username %DOCKERHUB_USERNAME% --password-stdin
+
+                        if errorlevel 1 (
+                            echo Docker Hub login failed.
+                            exit /b 1
+                        )
+                    '''
+
                     powershell '''
                         $ErrorActionPreference = "Stop"
 
-                        $env:DOCKERHUB_PASSWORD |
-                            docker login `
-                                --username $env:DOCKERHUB_USERNAME `
-                                --password-stdin
+                        function Invoke-Docker {
+                            param(
+                                [string[]]$DockerArguments
+                            )
+
+                            & docker @DockerArguments
+
+                            if ($LASTEXITCODE -ne 0) {
+                                $command = $DockerArguments -join " "
+                                throw "Docker command failed: docker $command"
+                            }
+                        }
 
                         $services = @(
                             "booking-service",
@@ -123,11 +145,27 @@ pipeline {
                             $latestImage =
                                 "$env:DOCKERHUB_NAMESPACE/homefixr-${service}:latest"
 
-                            docker tag $localImage $versionedImage
-                            docker tag $localImage $latestImage
+                            Invoke-Docker @(
+                                                               "tag",
+                                $localImage,
+                                $versionedImage
+                            )
 
-                            docker push $versionedImage
-                            docker push $latestImage
+                            Invoke-Docker @(
+                                "tag",
+                                $localImage,
+                                $latestImage
+                            )
+
+                            Invoke-Docker @(
+                                "push",
+                                $versionedImage
+                            )
+
+                            Invoke-Docker @(
+                                "push",
+                                $latestImage
+                            )
                         }
                     '''
                 }
